@@ -1,28 +1,30 @@
 import { useState } from 'react';
 import { Filter, Download } from 'lucide-react';
-import { balances, entities, periods } from '../data/mockData';
+import { entities, periods as getPeriodsForEntity, balances as calculateBalance } from '../data/mockData';
 
 type ReportTab = 'financial-position' | 'profit-loss';
 
 export function Reports() {
   const [activeTab, setActiveTab] = useState<ReportTab>('financial-position');
   const [filterEntity, setFilterEntity] = useState(entities[0].id);
-  const [filterPeriod, setFilterPeriod] = useState(periods[0].id);
+  const periodList = getPeriodsForEntity(filterEntity);
+  const [filterPeriod, setFilterPeriod] = useState(periodList[0]?.id ?? '');
+  const balances = filterPeriod ? calculateBalance(filterEntity, filterPeriod) : [];
 
-  const currentEntity = entities.find(e => e.id === filterEntity);
+  const currentEntity = entities.find((e) => e.id === filterEntity);
 
   // Calculate financial position
-  const assets = balances.filter(b => b.account_code.startsWith('1'));
-  const liabilities = balances.filter(b => b.account_code.startsWith('2'));
-  const equity = balances.filter(b => b.account_code.startsWith('3'));
+  const assets = balances.filter((b) => b.account_code.startsWith('1'));
+  const liabilities = balances.filter((b) => b.account_code.startsWith('2'));
+  const equity = balances.filter((b) => b.account_code.startsWith('3'));
 
   const totalAssets = assets.reduce((sum, b) => sum + b.balance, 0);
   const totalLiabilities = Math.abs(liabilities.reduce((sum, b) => sum + b.balance, 0));
   const totalEquity = Math.abs(equity.reduce((sum, b) => sum + b.balance, 0));
 
   // Calculate profit/loss
-  const income = balances.filter(b => b.account_code.startsWith('4'));
-  const expenses = balances.filter(b => b.account_code.startsWith('5'));
+  const income = balances.filter((b) => b.account_code.startsWith('4'));
+  const expenses = balances.filter((b) => b.account_code.startsWith('5'));
 
   const totalIncome = Math.abs(income.reduce((sum, b) => sum + b.balance, 0));
   const totalExpenses = expenses.reduce((sum, b) => sum + b.balance, 0);
@@ -64,7 +66,7 @@ export function Reports() {
               onChange={(e) => setFilterPeriod(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-[#c0c0c0] rounded text-sm"
             >
-              {periods.filter(p => p.entity_id === filterEntity).map(period => (
+              {periodList.map((period) => (
                 <option key={period.id} value={period.id}>
                   {period.from} to {period.to}
                 </option>
@@ -106,7 +108,7 @@ export function Reports() {
           <div className="text-center mb-6">
             <h2 className="text-xl font-semibold">{currentEntity?.name}</h2>
             <h3 className="text-lg">Statement of Financial Position</h3>
-            <p className="text-sm text-[#666]">As of {periods.find(p => p.id === filterPeriod)?.to}</p>
+            <p className="text-sm text-[#666]">As of {periodList.find((p) => p.id === filterPeriod)?.to}</p>
           </div>
 
           <div className="space-y-6">
@@ -170,8 +172,8 @@ export function Reports() {
             <h2 className="text-xl font-semibold">{currentEntity?.name}</h2>
             <h3 className="text-lg">Statement of Profit or Loss</h3>
             <p className="text-sm text-[#666]">
-              For the period {periods.find(p => p.id === filterPeriod)?.from} to{' '}
-              {periods.find(p => p.id === filterPeriod)?.to}
+              For the period {periodList.find((p) => p.id === filterPeriod)?.from} to{' '}
+              {periodList.find((p) => p.id === filterPeriod)?.to}
             </p>
           </div>
 

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Filter, Download } from 'lucide-react';
-import { balances, entities, periods } from '../data/mockData';
+import { entities, periods as getPeriodsForEntity, balances as calculateBalance } from '../data/mockData';
 
 export function TrialBalance() {
   const [filterEntity, setFilterEntity] = useState(entities[0].id);
-  const [filterPeriod, setFilterPeriod] = useState(periods[0].id);
+  const periodList = getPeriodsForEntity(filterEntity);
+  const [filterPeriod, setFilterPeriod] = useState(periodList[0]?.id ?? '');
   const [asOfDate, setAsOfDate] = useState('2026-03-05');
+  const balances = filterPeriod ? calculateBalance(filterEntity, filterPeriod) : [];
 
   const totalDebit = balances.reduce((sum, b) => sum + b.debit, 0);
   const totalCredit = balances.reduce((sum, b) => sum + b.credit, 0);
@@ -46,7 +48,7 @@ export function TrialBalance() {
               onChange={(e) => setFilterPeriod(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-[#c0c0c0] rounded text-sm"
             >
-              {periods.filter(p => p.entity_id === filterEntity).map(period => (
+              {periodList.map((period) => (
                 <option key={period.id} value={period.id}>
                   {period.from} to {period.to}
                 </option>

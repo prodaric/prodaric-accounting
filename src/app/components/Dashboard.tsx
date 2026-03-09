@@ -1,32 +1,44 @@
 import { Link } from 'react-router';
 import { AlertCircle, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
-import { entities, periods, entries, balances } from '../data/mockData';
+import {
+  entities,
+  periods as getPeriodsForEntity,
+  getEntriesForEntityPeriod,
+  balances as calculateBalance,
+} from '../data/mockData';
 
 export function Dashboard() {
   const currentEntity = entities[0];
-  const currentPeriod = periods.find(p => p.entity_id === currentEntity.id && p.status === 'open');
+  const periodList = getPeriodsForEntity(currentEntity.id);
+  const currentPeriod = periodList.find((p) => p.status === 'open');
+  const entries = currentPeriod
+    ? getEntriesForEntityPeriod(currentEntity.id, currentPeriod.id)
+    : [];
   const recentEntries = entries.slice(-5).reverse();
+  const balances = currentPeriod
+    ? calculateBalance(currentEntity.id, currentPeriod.id)
+    : [];
 
   // Calculate summary metrics
   const totalAssets = balances
-    .filter(b => b.account_code.startsWith('1'))
+    .filter((b) => b.account_code.startsWith('1'))
     .reduce((sum, b) => sum + b.balance, 0);
-  
+
   const totalLiabilities = Math.abs(
     balances
-      .filter(b => b.account_code.startsWith('2'))
+      .filter((b) => b.account_code.startsWith('2'))
       .reduce((sum, b) => sum + b.balance, 0)
   );
-  
+
   const totalEquity = Math.abs(
     balances
-      .filter(b => b.account_code.startsWith('3'))
+      .filter((b) => b.account_code.startsWith('3'))
       .reduce((sum, b) => sum + b.balance, 0)
   );
-  
+
   const totalIncome = Math.abs(
     balances
-      .filter(b => b.account_code.startsWith('4'))
+      .filter((b) => b.account_code.startsWith('4'))
       .reduce((sum, b) => sum + b.balance, 0)
   );
 

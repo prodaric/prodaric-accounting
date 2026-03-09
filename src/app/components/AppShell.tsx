@@ -209,7 +209,8 @@ export function AppShell({ children }: AppShellProps) {
                     <span>{item.label}</span>
                   </Link>
                 );
-              })}\n            </nav>
+              })}
+              </nav>
           </div>
         )}
 

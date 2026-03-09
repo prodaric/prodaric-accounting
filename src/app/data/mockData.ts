@@ -1,18 +1,27 @@
 /**
- * Mock Data - Deprecated
- * 
- * Este archivo se mantiene por compatibilidad pero los datos ahora se sirven
- * desde /src/app/services/mockBackend.ts que simula el backend PostgreSQL
- * con validaciones NIIF/IFRS completas.
- * 
- * Usar en su lugar:
- * - import { entities, getPeriodsForEntity, getAllAccounts, ... } from '../services/mockBackend';
+ * Fuente única de datos mock para la UI (compatibilidad con mockBackend).
+ *
+ * Los datos y la lógica viven en /src/app/services/mockBackend.ts (simula
+ * backend PostgreSQL con validaciones NIIF/IFRS). Este archivo re-exporta
+ * todo lo que la UI necesita para una sola fuente de importación.
+ *
+ * Exportados (todos desde mockBackend):
+ * - currentUser          (objeto) usuario actual
+ * - entities             (array) entidades de reporte
+ * - accounts             (función) getAllAccounts() → Account[]
+ * - periods              (función) getPeriodsForEntity(entityId) → Period[]
+ * - auditLog             (función) getAuditLog() → AuditLogEntry[]
+ * - getAccountById       (id) → Account | undefined
+ * - getAccountByCode     (code) → Account | undefined
+ * - getEntryById         (id) → Entry | undefined
+ * - getEntriesForEntityPeriod (entityId, periodId) → Entry[]
+ * - calculateBalance     (entityId, periodId) → Balance[]  (exportado como balances)
+ * - getSustainabilityMetrics (entityId, periodId) → SustainabilityMetric[]  (exportado como sustainabilityMetrics)
+ *
+ * Para escritura (registerEntry, etc.) importar desde '../services/mockBackend'.
  */
-
 import type { User } from '../types';
 
-// Solo exportamos currentUser por compatibilidad
-// El resto de datos debe obtenerse del mockBackend
 export const currentUser: User = {
   id: '1',
   name: 'Juan Pérez',
@@ -20,8 +29,7 @@ export const currentUser: User = {
   role: 'accountant'
 };
 
-// Re-exportar desde mockBackend para compatibilidad
-export { 
+export {
   entities,
   getAccountById,
   getAccountByCode,

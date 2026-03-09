@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { entities, periods } from '../data/mockData';
+import { entities, periods as getPeriodsForEntity } from '../data/mockData';
 
 type AdminTab = 'entities' | 'periods';
 
 export function Administration() {
   const [activeTab, setActiveTab] = useState<AdminTab>('entities');
   const [selectedEntityId, setSelectedEntityId] = useState(entities[0].id);
-
-  const entityPeriods = periods.filter(p => p.entity_id === selectedEntityId);
+  const entityPeriods = getPeriodsForEntity(selectedEntityId);
 
   return (
     <div className="p-6">

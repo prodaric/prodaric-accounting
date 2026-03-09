@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Filter, Download } from 'lucide-react';
-import { entries, entities, periods } from '../data/mockData';
+import { entities, periods as getPeriodsForEntity, getEntriesForEntityPeriod } from '../data/mockData';
 
 export function Ledger() {
   const [filterEntity, setFilterEntity] = useState(entities[0].id);
-  const [filterPeriod, setFilterPeriod] = useState(periods[0].id);
+  const periodListForEntity = getPeriodsForEntity(filterEntity);
+  const [filterPeriod, setFilterPeriod] = useState(() => getPeriodsForEntity(entities[0].id)[0]?.id ?? '');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
-  const filteredEntries = entries.filter(entry => {
+  const entries = filterPeriod ? getEntriesForEntityPeriod(filterEntity, filterPeriod) : [];
+  const filteredEntries = entries.filter((entry) => {
     let matches = true;
     if (filterEntity) matches = matches && entry.entity_id === filterEntity;
     if (filterPeriod) matches = matches && entry.period_id === filterPeriod;
@@ -54,7 +56,7 @@ export function Ledger() {
               onChange={(e) => setFilterPeriod(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-[#c0c0c0] rounded text-sm"
             >
-              {periods.filter(p => p.entity_id === filterEntity).map(period => (
+              {periodListForEntity.map((period) => (
                 <option key={period.id} value={period.id}>
                   {period.from} to {period.to}
                 </option>

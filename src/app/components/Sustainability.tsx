@@ -1,12 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { sustainabilityMetrics, entities, periods } from '../data/mockData';
+import { entities, periods as getPeriodsForEntity, sustainabilityMetrics as getSustainabilityMetrics } from '../data/mockData';
 import type { SustainabilityMetric } from '../types';
 
 export function Sustainability() {
   const [selectedEntity, setSelectedEntity] = useState(entities[0].id);
-  const [selectedPeriod, setSelectedPeriod] = useState(periods[0].id);
-  const [metrics, setMetrics] = useState<SustainabilityMetric[]>(sustainabilityMetrics);
+  const periodList = getPeriodsForEntity(selectedEntity);
+  const [selectedPeriod, setSelectedPeriod] = useState(periodList[0]?.id ?? '');
+
+  // Al cambiar entidad, resetear período al primero disponible
+  useEffect(() => {
+    const list = getPeriodsForEntity(selectedEntity);
+    setSelectedPeriod(list[0]?.id ?? '');
+  }, [selectedEntity]);
+
+  const metrics = selectedPeriod ? getSustainabilityMetrics(selectedEntity, selectedPeriod) : [];
   const [newMetric, setNewMetric] = useState({
     scope: 'scope1' as 'scope1' | 'scope2' | 'scope3',
     name: '',
@@ -14,9 +22,7 @@ export function Sustainability() {
     unit: 'tCO2e'
   });
 
-  const filteredMetrics = metrics.filter(
-    m => m.entity_id === selectedEntity && m.period_id === selectedPeriod
-  );
+  const filteredMetrics = metrics;
 
   const addMetric = () => {
     if (newMetric.name && newMetric.value > 0) {
@@ -26,7 +32,7 @@ export function Sustainability() {
         period_id: selectedPeriod,
         ...newMetric
       };
-      setMetrics([...metrics, metric]);
+      // En mock solo se reflejaría con backend real (upsert_sustainability_metric)
       setNewMetric({
         scope: 'scope1',
         name: '',
@@ -36,8 +42,8 @@ export function Sustainability() {
     }
   };
 
-  const removeMetric = (id: string) => {
-    setMetrics(metrics.filter(m => m.id !== id));
+  const removeMetric = (_id: string) => {
+    // En mock no persiste; con backend real se llamaría API de borrado
   };
 
   const getScopeLabel = (scope: string) => {
@@ -78,7 +84,7 @@ export function Sustainability() {
               onChange={(e) => setSelectedPeriod(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-[#c0c0c0] rounded text-sm"
             >
-              {periods.filter(p => p.entity_id === selectedEntity).map(period => (
+              {periodList.map((period) => (
                 <option key={period.id} value={period.id}>
                   {period.from} to {period.to}
                 </option>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Filter, Download, CheckCircle2, XCircle } from 'lucide-react';
-import { auditLog } from '../data/mockData';
+import { auditLog as getAuditLog } from '../data/mockData';
 
 export function AuditLog() {
   const [filterUser, setFilterUser] = useState('');
@@ -9,7 +9,8 @@ export function AuditLog() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
-  const filteredLogs = auditLog.filter(log => {
+  const logs = getAuditLog();
+  const filteredLogs = logs.filter((log) => {
     let matches = true;
     if (filterUser && !log.user.toLowerCase().includes(filterUser.toLowerCase())) matches = false;
     if (filterTenant && !log.tenant.toLowerCase().includes(filterTenant.toLowerCase())) matches = false;

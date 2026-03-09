@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Plus, Filter } from 'lucide-react';
-import { accounts } from '../data/mockData';
+import { accounts as getAllAccounts } from '../data/mockData';
 import type { Account } from '../types';
 
 export function ChartOfAccounts() {
   const [filterElement, setFilterElement] = useState<string>('all');
-  
+  const accounts = getAllAccounts();
   const filteredAccounts = filterElement === 'all'
     ? accounts
-    : accounts.filter(acc => acc.element === filterElement);
+    : accounts.filter((acc) => acc.element === filterElement);
 
   const getElementLabel = (element: Account['element']) => {
     const labels = {

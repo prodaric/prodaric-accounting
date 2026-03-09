@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-import { periods, entities, balances } from '../data/mockData';
+import { entities, periods as getPeriodsForEntity, balances as calculateBalance } from '../data/mockData';
 
 export function ClosePeriod() {
   const [selectedPeriod, setSelectedPeriod] = useState('');
-  
-  const openPeriods = periods.filter(p => p.status === 'open');
-  const period = periods.find(p => p.id === selectedPeriod);
-  const entity = period ? entities.find(e => e.id === period.entity_id) : null;
+  const openPeriods = entities.flatMap((e) => getPeriodsForEntity(e.id).filter((p) => p.status === 'open'));
+  const period = selectedPeriod ? openPeriods.find((p) => p.id === selectedPeriod) : null;
+  const entity = period ? entities.find((e) => e.id === period.entity_id) : null;
+  const balances = period ? calculateBalance(period.entity_id, period.id) : [];
 
   // Validation checks
   const totalDebit = balances.reduce((sum, b) => sum + b.debit, 0);
